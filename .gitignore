@@ -5,3 +5,6 @@ npm-debug.log
 .env
 dist
 tmp
+
+*.sublime-project
+*.sublime-workspace
