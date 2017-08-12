@@ -24,13 +24,13 @@
         components: {
             CalendarDay
         },
-        data() {
-            return {
-                month: 8,
-                year: 2017
-            };
-        },
         computed: {
+            month() {
+                return this.$store.state.currentMonth;
+            },
+            year() {
+                return this.$store.state.currentYear;
+            },
             days() {
                 // Generating days in current month
                 let days = [];
