@@ -20,14 +20,28 @@ let events = [
     { "description": "Random event 3", "date": "2017-08-29T00:00:00.000Z" }
 ];
 
+let renderer;
+
 app.get('/', (req, res) => {
   let template = fs.readFileSync(path.resolve('./index.html'), 'utf-8');
   let contentMarker = '<!--APP-->';
-  res.send(template.replace(contentMarker,
-    `<script>
-      var _INITIAL_STATE_ = ${ serialize(events) }
-    </script>`
-  ));
+  if (renderer) {
+    renderer.renderToString({}, (err, html) => {
+      if (err) {
+        console.log(err);
+      } else {
+        console.log(html);
+        res.send(template.replace(contentMarker,
+          `<script>
+            var _INITIAL_STATE_ = ${ serialize(events) }
+          </script>
+          ${html}`
+        ));
+      }
+    });
+  } else {
+    res.send('<p>Awating compilation..</p>')
+  }
 });
 
 app.use(require('body-parser').json());
@@ -42,6 +56,9 @@ if (process.env.NODE_ENV === 'development') {
   const reload = require('reload');
   const reloadServer = reload(server, app);
   require('./webpack-dev-middleware').init(app);
+  require('./webpack-server-compiler').init(function(bundle) {
+    renderer = require('vue-server-renderer').createBundleRenderer(bundle);
+  });
 }
 
 server.listen(process.env.PORT, function () {
