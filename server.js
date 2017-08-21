@@ -11,16 +11,19 @@ const serialize = require('serialize-javascript');
 
 app.use('/public', express.static(path.join(__dirname, 'public')));
 
+let renderer;
+
+if (process.env.NODE_ENV === 'production') {
+  let bundle = fs.readFileSync('./dist/node.bundle.js', 'utf8');
+  renderer = require('vue-server-renderer').createBundleRenderer(bundle);
+  app.use('/dist', express.static(path.join(__dirname, 'dist')));
+}
+
 let events = [
     { description: 'Random event 1', date: moment('2017-08-14', 'YYYY-MM-DD') },
     { description: 'Random event 2', date: moment('2017-07-14', 'YYYY-MM-DD') },
     { description: 'Random event 3', date: moment('2017-08-16', 'YYYY-MM-DD') }
-    // { "description": "Random event 1", "date": "2017-08-13T00:00:00.000Z" },
-    // { "description": "Random event 2", "date": "2017-08-18T00:00:00.000Z" },
-    // { "description": "Random event 3", "date": "2017-08-29T00:00:00.000Z" }
 ];
-
-let renderer;
 
 app.get('/', (req, res) => {
   let template = fs.readFileSync(path.resolve('./index.html'), 'utf-8');
